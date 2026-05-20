@@ -3,18 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบแสดงผล Storybook อัจฉริยะ // © Xero Studio</title>
+    <title>คลังนิทานอัจฉริยะสองภาษา // © Xero Studio</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f4f6f9;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
             min-height: 100vh;
             margin: 0;
             padding: 20px;
         }
+        /* โซนกล่องอัจฉริยะสำหรับใส่นิทานใหม่ */
+        .import-zone {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+            max-width: 650px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .import-zone textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-family: monospace;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+        .import-btn {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+            width: 100%;
+            font-size: 16px;
+        }
+        .import-btn:hover { background-color: #27ae60; }
+        
         .book-container {
             display: flex;
             flex-direction: column;
@@ -57,7 +92,6 @@
             border-radius: 12px;
             font-size: 12px;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
         .story-img {
             width: 100%;
@@ -66,11 +100,13 @@
             object-fit: cover;
             border-radius: 12px;
             background-color: #eaeaea;
+            margin-bottom: 5px;
         }
         .story-text {
             font-size: 17px;
             line-height: 1.8;
             color: #2c3e50;
+            margin: 5px 0;
         }
         .audio-btn {
             background-color: #3498db;
@@ -83,11 +119,8 @@
             display: flex;
             align-items: center;
             gap: 5px;
-            transition: background 0.2s;
         }
-        .audio-btn:hover {
-            background-color: #2980b9;
-        }
+        .audio-btn:hover { background-color: #2980b9; }
         .prompt-box {
             background-color: #f8f9fa;
             border-left: 4px solid #2ecc71;
@@ -108,121 +141,80 @@
 </head>
 <body>
 
+<div class="import-zone">
+    <label style="font-weight: bold; color: #2c3e50; display:block; margin-bottom: 8px;">📥 นำเข้านิทานเรื่องใหม่ (วาง JSON จากเจมส์ที่นี่):</label>
+    <textarea id="jsonInput" placeholder="วางโค้ด JSON ที่คัดลอกมาจากเจมส์ตรงนี้..."></textarea>
+    <button class="import-btn" onclick="loadUserJson()">⚡ เสกนิทานขึ้นหน้าเว็บทันที</button>
+</div>
+
 <div class="book-container">
-    <h1 id="book-title" class="story-title">กำลังโหลดนิทาน...</h1>
+    <h1 id="book-title" class="story-title">รอใส่ข้อมูลนิทาน...</h1>
     <div id="storybook-pages"></div>
 </div>
 
 <script>
-    // ข้อมูลนิทานชุดสมบูรณ์ที่มีทั้งหน้าปกพรีเมียม และเนื้อเรื่อง 5 หน้าจากค่าย © Xero Studio
-    const customStoryData = {
-        "title": "ลูกหมูสามตัวกับหมาป่าเจ้าเล่ห์",
-        "cover": {
-            "image_url": "cover.png",
-            "cover_prompt": "A beautiful illustration of three cheerful little pigs, one standing next to a straw house, one next to a stick house, and one next to a strong brick house, in a lush rolling countryside under a bright sunny sky with a forest in the background. Beautiful typography text decoration that says 'The Three Little Pigs' written clearly on the top center, bold fonts. At the bottom center of the image, include a clean, small, and elegant typography text credit that reads exactly '© Xero Studio'. STRICT RULES: Absolute forbidden to include words like 'Classic', 'Fairytale', 'Folktale', 'นิทานพื้นบ้าน', 'วรรณกรรมเยาวชน'. No author names, no painter names, no decorator names. The only text allowed on the image is the English title and '© Xero Studio'."
-        },
-        "pages": [
-            {
-                "page_number": 1,
-                "story_text": "กาลครั้งหนึ่งนานมาแล้ว มีลูกหมูสามตัวเป็นพี่น้องกัน พวกมันตัดสินใจออกเดินทางไปสร้างบ้านของตัวเอง พี่ใหญ่จอมขี้เกียจเลือกสร้างบ้านด้วยฟางเพราะเสร็จเร็วที่สุด พี่รองผู้รักความสบายเลือกสร้างบ้านด้วยเศษไม้ ส่วนน้องเล็กผู้ขยันขันแข็งยอมเหน็ดเหนื่อยเพื่อสร้างบ้านด้วยอิฐที่แข็งแรง",
-                "image_prompt": "Three cute little cartoon pigs waving goodbye, walking on a dirt path in a sunny green meadow. Pure cinematic animation style, vibrant character design, clean scenery, strict no text, no words, no fonts, no layout panels, full single scene view, no text overlapping.",
-                "image_url": "p1.png" 
-            },
-            {
-                "page_number": 2,
-                "story_text": "วันหนึ่ง หมาป่าใจร้ายโผล่มาจากในป่า มันเดินมาที่บ้านฟางของพี่ใหญ่แล้วสูดลมหายใจลึกๆ ก่อนจะเป่าลมพ่นออกมาเพียงครั้งเดียว บ้านฟางก็ปลิวหายไปในอากาศ! พี่ใหญ่ตกใจกลัวมาก จึงรีบวิ่งหนีไปที่บ้านไม้ของพี่รองทันที",
-                "image_prompt": "A big bad grey wolf with sharp teeth, puffing his cheeks and blowing hard at a fragile straw house. The straw house is flying apart in the wind. A scared little pig is running away towards a wooden house. Pure cinematic animation style, vibrant character design, clean scenery, strict no text, no words, no fonts, no layout panels, full single scene view, no text overlapping.",
-                "image_url": "p2.png"
-            },
-            {
-                "page_number": 3,
-                "story_text": "หมาป่าเจ้าเล่ห์ตามมาถึงบ้านไม้ของพี่รอง มันสูดลมหายใจเข้าลึกยิ่งกว่าเดิม แล้วเป่าลมสุดแรงเกิด บ้านไม้พังทลายลงมาเป็นชิ้นๆ ลูกหมูทั้งสองตัวตื่นตระหนกตกใจอย่างมาก พวกมันรีบวิ่งสี่ขาโกยอ้าวไปที่บ้านอิฐของน้องเล็กโดยไม่เหลียวหลัง",
-                "image_prompt": "The big bad wolf blowing strongly at a wooden house made of sticks. The wooden house is breaking apart and collapsing. Two terrified little pigs are running fast towards a sturdy red brick house nearby. Pure cinematic animation style, vibrant character design, clean scenery, strict no text, no words, no fonts, no layout panels, full single scene view, no text overlapping.",
-                "image_url": "p3.png"
-            },
-            {
-                "page_number": 4,
-                "story_text": "หมาป่าวิ่งตามมาถึงบ้านอิฐ มันพยายามสูดลมเป่าอีกครั้งและอีกครั้งจนหน้าดำหน้าแดง แต่บ้านอิฐก็ไม่ขยับเขยื้อนเลยแม้แต่น้อย เมื่อเห็นว่าเป่าไม่พัง หมาป่าจึงปีนขึ้นไปบนหลังคาและพยายามจะมุดลงมาทางปล่องไฟเพื่อจับลูกหมูกิน",
-                "image_prompt": "The big bad wolf, looking tired and frustrated with red cheeks, trying to blow down a solid red brick house but failing. In the next moment, the wolf is climbing up the roof towards a brick chimney, while the house stands perfectly still. Pure cinematic animation style, vibrant character design, clean scenery, strict no text, no words, no fonts, no layout panels, full single scene view, no text overlapping.",
-                "image_url": "p4.png"
-            },
-            {
-                "page_number": 5,
-                "story_text": "แต่น้องเล็กผู้ชาญฉลาดได้ตั้งหม้อต้มน้ำร้อนรอไว้ที่เตาผิงด้านล่างแล้ว! เมื่อหมาป่ารูดตัวลงมาจากปล่องไฟ ก้นของมันก็กระแทกเข้ากับน้ำร้อนลวกอย่างจัง หมาป่าร้องลั่นด้วยความเจ็บปวดแล้วกระโดดหนีเตลิดเปิดเปิงเข้าป่าไป และไม่กล้ากลับมาตอแยกับลูกหมูสามตัวอีกเลย",
-                "image_prompt": "Inside a cozy brick house, a big pot of boiling water sits on a fireplace. The wolf is shooting up out of the chimney into the sky, clutching his burnt tail with a funny painful expression. Three little pigs are cheering and hugging each other happily. Pure cinematic animation style, vibrant character design, clean scenery, strict no text, no words, no fonts, no layout panels, full single scene view, no text overlapping.",
-                "image_url": "p5.png"
-            }
-        ]
-    };
+    function loadUserJson() {
+        const rawData = document.getElementById('jsonInput').value.trim();
+        if(!rawData) {
+            alert("กรุณาวางโค้ด JSON ก่อนครับ");
+            return;
+        }
+        try {
+            const parsedData = JSON.parse(rawData);
+            renderStory(parsedData);
+            document.getElementById('jsonInput').value = ""; 
+        } catch(e) {
+            alert("❌ โค้ด JSON ไม่ถูกต้อง กรุณาก๊อปปี้จากเจมส์มาให้ครบถ้วนครับ!");
+        }
+    }
 
-    // ฟังก์ชันสร้างหน้าแสดงผลนิทาน
-    function buildStorybook(data) {
-        document.getElementById('book-title').innerText = data.title;
+    function renderStory(data) {
+        const titleText = (data.title_th && data.title_en) ? `${data.title_th} (${data.title_en})` : (data.title || "นิทานโดย Xero Studio");
+        document.getElementById('book-title').innerText = titleText;
+        
         const pagesContainer = document.getElementById('storybook-pages');
         pagesContainer.innerHTML = ''; 
 
-        // 1. ตรวจสอบและสร้างกล่องหน้าปกพรีเมียม (บังคับให้แสดงกล่องข้อความ Prompt เสมอแม้ไม่มีรูปภาพ)
-        if (data.cover) {
+        if (data.type === "cover") {
             const coverCard = document.createElement('div');
             coverCard.className = 'page-card cover-card';
             
-            // ถ้ามีรูป cover.png ให้แสดงรูปภาพ ถ้าไม่มีให้ข้ามไป (ไม่ซ่อนทั้งกล่องแล้ว)
-            const coverImgHTML = data.cover.image_url ? `<img src="${data.cover.image_url}" class="story-img" alt="Official Cover" onerror="this.style.display='none';">` : '';
-            
+            const currentCoverUrl = "cover.png";
+            const imgHTML = `<img src="${currentCoverUrl}" class="story-img" onerror="this.style.display='none';">`;
+
             coverCard.innerHTML = `
                 <div class="page-number">
                     <span class="cover-badge">OFFICIAL COVER</span>
                     <span style="color: #7f8c8d; font-size: 13px; font-weight: bold;">© Xero Studio</span>
                 </div>
-                ${coverImgHTML}
+                ${imgHTML}
                 <div class="prompt-box" style="border-left-color: #3498db; background-color: #f0f7fc;">
-                    <strong style="color: #2980b9;">🎨 คัดลอก Prompt สำหรับสร้างภาพหน้าปกลิขสิทธิ์:</strong>
-                    <div class="prompt-text">${data.cover.cover_prompt}</div>
+                    <strong style="color: #2980b9;">🎨 คัดลอก Prompt สำหรับสร้างภาพหน้าปก:</strong>
+                    <div class="prompt-text">${data.cover_prompt}</div>
                 </div>
             `;
             pagesContainer.appendChild(coverCard);
-        }
+        } 
+        else if (data.pages && Array.isArray(data.pages)) {
+            data.pages.forEach((page) => {
+                const card = document.createElement('div');
+                card.className = 'page-card';
+                
+                const currentImgUrl = `p${page.page_number}.png`;
+                const imgHTML = `<img src="${currentImgUrl}" class="story-img" onerror="this.style.display='none';">`;
+                
+                const textThai = page.story_text_th || "";
+                const textEng = page.story_text_en || "";
+                const engHTML = textEng ? `<p class="story-text" style="color: #57606f; font-style: italic;"><b>EN:</b> ${textEng}</p>` : '';
 
-        // 2. สร้างกล่องเนื้อหาหน้า 1 - 5 เรียงลำดับลงมา
-        data.pages.forEach((page, index) => {
-            const card = document.createElement('div');
-            card.className = 'page-card';
-            
-            const imgHTML = page.image_url ? `<img src="${page.image_url}" class="story-img" alt="Illustration" onerror="this.style.display='none';">` : '';
-
-            card.innerHTML = `
-                <div class="page-number">
-                    <span>หน้าที่ ${page.page_number}</span>
-                    <button class="audio-btn" onclick="speakText('${escapeJS(page.story_text)}')">🔊 อ่านให้ฟัง</button>
-                </div>
-                ${imgHTML}
-                <p class="story-text">${page.story_text}</p>
-                <div class="prompt-box">
-                    <strong>🎨 คัดลอก Prompt นี้ไปสร้างภาพ:</strong>
-                    <div class="prompt-text">${page.image_prompt}</div>
-                </div>
-            `;
-            pagesContainer.appendChild(card);
-        });
-    }
-
-    // ระบบออกเสียงภาษาไทย (Text-to-Speech)
-    function speakText(text) {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'th-TH'; 
-        utterance.rate = 1.0;     
-        window.speechSynthesis.speak(utterance);
-    }
-
-    // ฟังก์ชันช่วยจัดการข้อความพิเศษ
-    function escapeJS(str) {
-        return str.replace(/'/g, "\\'").replace(/"/g, '\\"');
-    }
-
-    // เรียกใช้งานระบบ
-    buildStorybook(customStoryData);
-</script>
-
-</body>
-</html>
+                card.innerHTML = `
+                    <div class="page-number">
+                        <span>หน้าที่ ${page.page_number}</span>
+                        <button class="audio-btn" onclick="speakText('${escapeJS(textThai)}')">🔊 อ่านให้ฟัง</button>
+                    </div>
+                    ${imgHTML}
+                    <p class="story-text"><b>TH:</b> ${textThai}</p>
+                    ${engHTML}
+                    <div class="prompt-box" id="pbox-${page.page_number}">
+                        <strong>🎨 คัดลอก Prompt นี้ไปสร้างภาพ:</strong>
+                        <div class="prompt-text">${page.image_prompt}</div>
