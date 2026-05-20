@@ -157,12 +157,14 @@
         const pagesContainer = document.getElementById('storybook-pages');
         pagesContainer.innerHTML = ''; 
 
+        // 1. จัดการส่วนของหน้าปก (และเขียนฟังก์ชันตรวจสอบปิด Prompt อัตโนมัติในตัว)
         if (data.cover) {
             const coverCard = document.createElement('div');
             coverCard.className = 'page-card cover-card';
             
-            const currentCoverUrl = "cover.png";
-            const imgHTML = `<img src="${currentCoverUrl}" class="story-img" onerror="this.style.display='none';">`;
+            const currentCoverUrl = data.cover.image_url || "cover.png";
+            // ใช้ฟังก์ชัน checkImageExist เพื่อซ่อนกล่อง Prompt เมื่อรูปหน้าปกโหลดติดจริงบนเว็บ
+            const imgHTML = `<img src="${currentCoverUrl}" class="story-img" id="cover-image-tag" onload="document.getElementById('cover-pbox').style.display='none';" onerror="this.style.display='none';">`;
 
             coverCard.innerHTML = `
                 <div class="page-number">
@@ -170,7 +172,7 @@
                     <span style="color: #7f8c8d; font-size: 13px; font-weight: bold;">© Xero Studio</span>
                 </div>
                 ${imgHTML}
-                <div class="prompt-box" style="border-left-color: #3498db; background-color: #f0f7fc;">
+                <div class="prompt-box" id="cover-pbox" style="border-left-color: #3498db; background-color: #f0f7fc;">
                     <strong style="color: #2980b9;">🎨 คัดลอก Prompt สำหรับสร้างภาพหน้าปกแบบสองภาษาไปสั่งวาดรูป:</strong>
                     <div class="prompt-text">${data.cover.cover_prompt}</div>
                 </div>
@@ -178,13 +180,15 @@
             pagesContainer.appendChild(coverCard);
         } 
         
+        // 2. จัดการส่วนของเนื้อเรื่อง
         if (data.pages && Array.isArray(data.pages)) {
             data.pages.forEach((page) => {
                 const card = document.createElement('div');
                 card.className = 'page-card';
                 
                 const currentImgUrl = `p${page.page_number}.png`;
-                const imgHTML = `<img src="${currentImgUrl}" class="story-img" onerror="this.style.display='none';">`;
+                // ย้ายตัวสั่งซ่อนการแสดงผลมาจับที่กล่อง 'onload' บนแท็กรูปภาพโดยตรง เพื่อหลบเลี่ยงปัญหาความปลอดภัยของเบราว์เซอร์
+                const imgHTML = `<img src="${currentImgUrl}" class="story-img" onload="document.getElementById('pbox-${page.page_number}').style.display='none';" onerror="this.style.display='none';">`;
 
                 card.innerHTML = `
                     <div class="page-number">
@@ -200,13 +204,6 @@
                     </div>
                 `;
                 pagesContainer.appendChild(card);
-                
-                const tempImg = new Image();
-                tempImg.src = currentImgUrl;
-                tempImg.onload = function() {
-                    const box = document.getElementById(`pbox-${page.page_number}`);
-                    if(box) box.style.display = 'none';
-                };
             });
         }
     }
@@ -222,6 +219,7 @@
         return str.replace(/'/g, "\\'").replace(/"/g, '\\"');
     }
 
+    // เรียกทำงานระบบแสดงผล
     renderStory(customStoryData);
 </script>
 
