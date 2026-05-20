@@ -161,12 +161,13 @@
         const pagesContainer = document.getElementById('storybook-pages');
         pagesContainer.innerHTML = ''; 
 
-        // 1. ตรวจสอบและสร้างกล่องหน้าปกพรีเมียม (โผล่ไว้บนสุดเสมอ)
+        // 1. ตรวจสอบและสร้างกล่องหน้าปกพรีเมียม (บังคับให้แสดงกล่องข้อความ Prompt เสมอแม้ไม่มีรูปภาพ)
         if (data.cover) {
             const coverCard = document.createElement('div');
             coverCard.className = 'page-card cover-card';
             
-            const coverImgHTML = data.cover.image_url ? `<img src="${data.cover.image_url}" class="story-img" alt="Official Cover">` : '';
+            // ถ้ามีรูป cover.png ให้แสดงรูปภาพ ถ้าไม่มีให้ข้ามไป (ไม่ซ่อนทั้งกล่องแล้ว)
+            const coverImgHTML = data.cover.image_url ? `<img src="${data.cover.image_url}" class="story-img" alt="Official Cover" onerror="this.style.display='none';">` : '';
             
             coverCard.innerHTML = `
                 <div class="page-number">
@@ -187,7 +188,7 @@
             const card = document.createElement('div');
             card.className = 'page-card';
             
-            const imgHTML = page.image_url ? `<img src="${page.image_url}" class="story-img" alt="Illustration">` : '';
+            const imgHTML = page.image_url ? `<img src="${page.image_url}" class="story-img" alt="Illustration" onerror="this.style.display='none';">` : '';
 
             card.innerHTML = `
                 <div class="page-number">
