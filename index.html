@@ -217,4 +217,676 @@
         .option {
             padding: 15px;
             border: 1px solid rgba(224, 224, 224, 0.2);
-            background: rgba(2, 2, 4
+            background: rgba(2, 2, 4, 0.6);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option:hover {
+            border-color: var(--neon-cyan);
+            background: rgba(0, 245, 255, 0.05);
+        }
+
+        .option.selected {
+            border-color: var(--neon-purple);
+            background: rgba(157, 0, 255, 0.1);
+        }
+
+        /* 3x3 Grid for IQ Visual Matrix Scan */
+        .matrix {
+            display: grid;
+            grid-template-columns: repeat(3, 90px);
+            gap: 10px;
+            margin: 20px auto;
+            justify-content: center;
+        }
+
+        .matrix-cell {
+            width: 90px;
+            height: 90px;
+            border: 1px solid var(--text-dim);
+            background-color: #1a2333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            position: relative;
+        }
+
+        .matrix-cell.q {
+            border: 2px dashed var(--neon-cyan);
+            color: var(--neon-cyan);
+            background: rgba(2, 2, 4, 0.8);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+        }
+
+        footer {
+            padding: 30px 40px;
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 2px;
+            width: 100%;
+            text-align: center;
+            border-top: 1px solid rgba(0, 245, 255, 0.05);
+        }
+
+        .score {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-cyan);
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="w-full max-w-5xl mx-auto px-6 py-4 flex justify-between items-center border-b border-gray-900">
+        <div class="flex items-center space-x-2 cursor-pointer" onclick="showView('menu')">
+            <span class="font-bold text-sm tracking-widest text-cyan-400 font-mono">SYS_CORE // SCI-X</span>
+        </div>
+        <div class="flex items-center space-x-4">
+            <button id="langToggle" onclick="toggleLanguage()" class="btn !px-3 !py-1 text-xs">ENG // THA</button>
+            <button id="homeBtn" onclick="showView('menu')" class="hidden btn !px-3 !py-1 text-xs">◄ HOME</button>
+        </div>
+    </nav>
+
+    <header>
+        <h1>PHYSICS NO.7 & <span class="glitch">SCI-X</span></h1>
+        <p class="subtitle translate-content" data-en="NEURAL INTERFACE v7.0 // COGNITIVE ASSESSMENT MODULE" data-th="ระบบอินเตอร์เฟสประสาท v7.0 // โมดูลประเมินสติปัญญาและวุฒิภาวะ">NEURAL INTERFACE v7.0 // COGNITIVE ASSESSMENT MODULE</p>
+    </header>
+
+    <main>
+        <div id="customAlert" class="hidden mb-6 p-4 border border-cyan-500 bg-cyan-950/20 text-cyan-400 text-sm flex justify-between items-center">
+            <span id="alertMessage">SYS_FEEDBACK: Nominal</span>
+            <button onclick="closeAlert()" class="ml-4 font-bold hover:text-white">✕</button>
+        </div>
+
+        <div id="menu" class="view active">
+            <div class="grid-container">
+                <div class="card" onclick="showView('physics')">
+                    <h2 class="translate-content" data-en="📚 PHYSICS ARCHIVE" data-th="📚 คลังข้อมูลฟิสิกส์">📚 PHYSICS ARCHIVE</h2>
+                    <p class="translate-content" data-en="Access quantum documents, formula matrices, and galactic standard learning protocols." data-th="เข้าถึงฐานข้อมูลเอกสารเรียน สูตรคำนวณสากล และบันทึกทฤษฎีกลศาสตร์ควอนตัม">Access quantum documents, formula matrices, and galactic standard learning protocols.</p>
+                </div>
+
+                <div class="card" onclick="showView('exam')">
+                    <h2 class="translate-content" data-en="📝 QUANTUM EXAM" data-th="📝 แบบทดสอบฟิสิกส์">📝 QUANTUM EXAM</h2>
+                    <p class="translate-content" data-en="Test conceptual mastery of mechanics, EM fields, and relativistic frameworks." data-th="ประเมินระดับทักษะความเข้าใจเชิงคำนวณ ตั้งแต่จลนศาสตร์ไปจนถึงสัมพัทธภาพ">Test conceptual mastery of mechanics, EM fields, and relativistic frameworks.</p>
+                </div>
+
+                <div class="card" onclick="showView('iq')">
+                    <h2 class="translate-content" data-en="🧩 IQ NEURAL SCAN" data-th="🧩 ด่านทดสอบระดับ IQ">🧩 IQ NEURAL SCAN</h2>
+                    <p class="translate-content" data-en="Challenge fluid intelligence with abstract spatial matrices and logic sequences." data-th="ท้าทายระดับสติปัญญาการคิดวิเคราะห์ด้วยเมทริกซ์มิติสัมพันธ์และลอจิกรูปทรง 2D">Challenge fluid intelligence with abstract spatial matrices and logic sequences.</p>
+                </div>
+
+                <div class="card" onclick="showView('eq')">
+                    <h2 class="translate-content" data-en="🧠 EQ ASSESSMENT" data-th="🧠 แบบประเมินวุฒิภาวะ EQ">🧠 EQ ASSESSMENT</h2>
+                    <p class="translate-content" data-en="Evaluate emotional intelligence and situational response algorithms." data-th="ประเมินเวกเตอร์การตัดสินใจ การควบคุมและการตอบสนองทางอารมณ์ในภาวะวิกฤต">Evaluate emotional intelligence and situational response algorithms.</p>
+                </div>
+            </div>
+
+            <div class="border border-cyan-900/50 p-6 bg-[#060a14] mt-8">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div class="space-y-1 text-center md:text-left">
+                        <h3 class="font-bold text-cyan-400 font-mono text-md translate-content" data-en="SYSTEM COGNITIVE QR GENERATOR" data-th="ระบบสร้างคิวอาร์โค้ดประจำแอป">SYSTEM COGNITIVE QR GENERATOR</h3>
+                        <p class="text-xs text-gray-500 translate-content" data-en="Render a local offline 2D QR Code pointing to this live application URL." data-th="พิมพ์ลิงก์ของหน้าเว็บนี้เพื่อแปลงเป็นภาพ QR Code สำหรับสแกนแชร์แอปพลิเคชันได้ในตัว">Render a local offline 2D QR Code pointing to this live application URL.</p>
+                    </div>
+                    <div class="flex items-center space-x-3 w-full md:w-auto">
+                        <input id="qrInput" type="text" placeholder="https://physics-sci-x.com" class="bg-black border border-cyan-400/40 text-cyan-400 px-4 py-2 text-sm w-full md:w-64 focus:outline-none focus:border-cyan-400 font-mono" value="https://physics-sci-x.com">
+                        <button onclick="generateAppQRCode()" class="btn !py-1.5 text-xs font-bold translate-content" data-en="RENDER_QR" data-th="ประมวลผล_QR">RENDER_QR</button>
+                    </div>
+                </div>
+                
+                <div id="qrResultArea" class="hidden mt-6 flex flex-col items-center space-y-4 p-6 border border-cyan-400 bg-black/95">
+                    <h4 class="font-bold text-xs tracking-widest text-cyan-400 font-mono">PHYSICS NO.7 / SCI-X</h4>
+                    <canvas id="qrCanvas" class="border-2 border-cyan-500 p-2 bg-white"></canvas>
+                    <button onclick="document.getElementById('qrResultArea').classList.add('hidden')" class="text-xs text-red-400 font-mono hover:text-red-600 uppercase">TERMINATE_VIEW</button>
+                </div>
+            </div>
+
+            <a href="storybook.html" style="text-decoration: none;">
+                <div style="background: rgba(0, 0, 0, 0.4); border: 1px solid #00ffcc; border-radius: 8px; padding: 20px; margin-top: 30px; margin-bottom: 10px; cursor: pointer; transition: 0.3s;">
+                    <h2 class="translate-content" data-en="📚 AI_STORY_MODULE // COGNITIVE" data-th="📚 โมดูลนิทาน AI // ระบบการรับรู้">📚 AI_STORY_MODULE // COGNITIVE</h2>
+                    <p class="translate-content" data-en="Access automated fairytale synthesis with text-to-speech engine integration." data-th="เข้าถึงระบบสังเคราะห์หนังสือนิทานอัตโนมัติ พร้อมการเชื่อมต่อระบบเสียงอ่านอัจฉริยะ">Access automated fairytale synthesis with text-to-speech engine integration.</p>
+                </div>
+            </a>
+        </div>
+
+        <div id="physics" class="view space-y-6">
+            <div class="game-header">
+                <h2 class="translate-content" data-en="PHYSICS ARCHIVE // DATA STREAM" data-th="คลังสืบค้นทฤษฎีและเอกสารฟิสิกส์">PHYSICS ARCHIVE // DATA STREAM</h2>
+                <button class="btn text-xs" onclick="showView('menu')">◄ BACK</button>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <button onclick="openLesson(1)" class="lesson-tab py-2 text-xs font-bold border border-cyan-400 bg-cyan-400 text-black translate-content" data-en="Classical Dynamics" data-th="กลศาสตร์คลาสสิก">Classical Dynamics</button>
+                <button onclick="openLesson(2)" class="lesson-tab py-2 text-xs font-bold border border-gray-800 text-cyan-400 hover:border-cyan-400 translate-content" data-en="Electromagnetism" data-th="ไฟฟ้าแม่เหล็ก">Electromagnetism</button>
+                <button onclick="openLesson(3)" class="lesson-tab py-2 text-xs font-bold border border-gray-800 text-cyan-400 hover:border-cyan-400 translate-content" data-en="Wave Mechanics" data-th="กลศาสตร์คลื่น">Wave Mechanics</button>
+                <button onclick="openLesson(4)" class="lesson-tab py-2 text-xs font-bold border border-gray-800 text-cyan-400 hover:border-cyan-400 translate-content" data-en="Quantum Physics" data-th="ฟิสิกส์ควอนตัม">Quantum Physics</button>
+            </div>
+            <div class="game-panel !border-cyan-400">
+                <div id="lessonBody" class="space-y-4">
+                </div>
+            </div>
+        </div>
+
+        <div id="exam" class="view space-y-6">
+            <div class="game-header">
+                <h2>QUANTUM EXAM // ASSESSMENT MODULE</h2>
+                <button class="btn text-xs" onclick="showView('menu')">◄ BACK</button>
+            </div>
+            <div class="flex justify-between items-center text-xs font-mono bg-[#080c16] p-4 border border-cyan-800/40 mb-2">
+                <div class="text-cyan-400">
+                    <span class="translate-content" data-en="STREAK_INDEX:" data-th="ข้อสอบข้อที่:">STREAK_INDEX:</span> <span id="quizIndex">1</span>/5
+                </div>
+                <div class="score">ACCURACY: <span id="quizScore">0</span></div>
+            </div>
+            <div class="game-panel !border-cyan-400/70">
+                <h3 id="physicsQuestion" class="question">Loading question...</h3>
+                <div id="physicsOptions" class="options">
+                </div>
+            </div>
+            <div id="physicsFeedback" class="hidden border border-cyan-500 bg-[#06121e] p-6 space-y-4">
+                <h4 id="feedbackStatus" class="font-bold text-md font-mono tracking-wider">TELEMETRY_STATUS</h4>
+                <p id="feedbackExplanation" class="text-xs text-gray-300 leading-relaxed font-mono"></p>
+                <button onclick="nextPhysicsQuestion()" class="btn text-xs translate-content" data-en="CONTINUE_SEQUENCE" data-th="ด่านถัดไป">CONTINUE_SEQUENCE</button>
+            </div>
+        </div>
+
+        <div id="iq" class="view space-y-6">
+            <div class="game-panel">
+                <div class="game-header">
+                    <h2>IQ NEURAL SCAN // MATRIX PROTOCOL</h2>
+                    <div>
+                        <span class="score">SCORE: <span id="iq-score">0</span>/1</span>
+                        <button class="btn text-xs" onclick="showView('menu')">◄ BACK</button>
+                    </div>
+                </div>
+                <div id="iq-content">
+                    <div class="question translate-content" data-en="Complete the pattern matrix. Which shape logically completes the spatial sequence?" data-th="จงวิเคราะห์การสลับแพทเทิร์นในเมทริกซ์ รูปทรงใดเติมเต็มตำแหน่งเครื่องหมายคำถาม (?) ได้ถูกต้อง">Complete the pattern matrix. Which shape logically completes the spatial sequence?</div>
+                    
+                    <div class="matrix">
+                        <div class="matrix-cell">●</div>
+                        <div class="matrix-cell">◐</div>
+                        <div class="matrix-cell">○</div>
+                        <div class="matrix-cell">◐</div>
+                        <div class="matrix-cell">○</div>
+                        <div class="matrix-cell">●</div>
+                        <div class="matrix-cell">○</div>
+                        <div class="matrix-cell">●</div>
+                        <div class="matrix-cell q">?</div>
+                    </div>
+
+                    <div class="options">
+                        <div class="option" id="iqOpt1" onclick="submitIqAnswer('◐', 1)">A. ◐</div>
+                        <div class="option" id="iqOpt2" onclick="submitIqAnswer('●', 2)">B. ●</div>
+                        <div class="option" id="iqOpt3" onclick="submitIqAnswer('○', 3)">C. ○</div>
+                    </div>
+                </div>
+            </div>
+            <div id="iqFeedback" class="hidden border border-cyan-400 p-6 bg-[#040c16] space-y-4">
+                <h3 id="iqResultTitle" class="font-bold text-md font-mono tracking-widest">RESULT STATUS</h3>
+                <p id="iqRationale" class="text-xs leading-relaxed text-gray-300 font-mono"></p>
+                <button onclick="resetIqQuiz()" class="btn text-xs translate-content" data-en="RE-SCAN_NEURONS" data-th="สแกนใหม่อีกครั้ง">RE-SCAN_NEURONS</button>
+            </div>
+        </div>
+
+        <div id="eq" class="view space-y-6">
+            <div class="game-panel">
+                <div class="game-header">
+                    <h2>EQ ASSESSMENT // EMOTIONAL ALGORITHM</h2>
+                    <div>
+                        <span class="score">PROFILE: <span id="eq-profile">UNDEFINED</span></span>
+                        <button class="btn text-xs" onclick="showView('menu')">◄ BACK</button>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center text-xs font-mono bg-[#080c16] p-4 border border-cyan-800/40 mb-4">
+                    <div class="text-cyan-400">
+                        <span class="translate-content" data-en="SCENARIO_TARGET:" data-th="เหตุการณ์จำลองที่:">SCENARIO_TARGET:</span> <span id="eqIndex">1</span>/3
+                    </div>
+                </div>
+                <div id="eq-content">
+                    <h3 id="eqScenarioText" class="question">Scenario Processing...</h3>
+                    <div id="eqOptions" class="options">
+                    </div>
+                </div>
+                <div id="eqResultCard" class="hidden border border-purple-500 bg-[#0c051a] p-6 space-y-4 mt-4">
+                    <h3 class="font-bold text-md text-purple-400 tracking-wider translate-content" data-en="PSYCHOLOGY_VECTOR ANALYSIS COMPLETE" data-th="✓ ผลการตรวจวิเคราะห์ระดับ EQ สำเร็จสิ้น">PSYCHOLOGY_VECTOR ANALYSIS COMPLETE</h3>
+                    <p id="eqAnalysisText" class="text-xs leading-relaxed text-gray-300 font-mono"></p>
+                    <button onclick="resetEqTest()" class="btn !border-purple-500 text-purple-400 hover:bg-purple-500 hover:text-white text-xs translate-content" data-en="RESTART_EVALUATION" data-th="เริ่มประเมินซ้ำอีกครั้ง">RESTART_EVALUATION</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer>
+        PHYSICS NO.7 / SCI-X NEURAL NET
+    </footer>
+
+    <script>
+        let currentLanguage = 'en';
+        let currentView = 'menu';
+
+        // 1. DATA BLOCKS FOR PHYSICS SYLLABUS
+        const physicsLessons = {
+            1: {
+                title: "Classical Dynamics & Motion Mapping",
+                titleTh: "ระบบจลนศาสตร์และกลศาสตร์คลาสสิก",
+                content: `
+                    <p class="text-cyan-400 font-bold">>> CODE_BLOCK_01: CONSTANT ACCELERATION</p>
+                    <p class="text-gray-400">Mathematical progression vectors under unchanging rate of speed alteration ($a$):</p>
+                    <div class="bg-black/50 p-3 font-mono text-cyan-300 space-y-1 my-2 border-l-2 border-cyan-400">
+                        <div>v = u + at</div>
+                        <div>s = ut + 0.5at²</div>
+                        <div>v² = u² + 2as</div>
+                    </div>
+                    <p class="text-cyan-400 font-bold mt-4">>> CODE_BLOCK_02: NEWTONIAN PROTOCOLS</p>
+                    <ul class="list-disc pl-5 text-gray-400 space-y-1">
+                        <li><strong>Law I:</strong> Objects persist in stationary status or constant velocity matrix unless interfered by net external force vectors.</li>
+                        <li><strong>Law II:</strong> Acceleration force vectors correspond directly to mass products: <strong>F = ma</strong>.</li>
+                    </ul>`
+            },
+            2: {
+                title: "Electromagnetism & Unified Fields",
+                titleTh: "ทฤษฎีสนามแม่เหล็กไฟฟ้าแมกซ์เวลล์",
+                content: `
+                    <p class="text-cyan-400 font-bold">>> CODE_BLOCK_01: COULOMB PARTICLES</p>
+                    <div class="bg-black/50 p-3 font-mono text-cyan-300 my-2 border-l-2 border-cyan-400">
+                        F = k_e * (|q1 * q2| / r²)
+                    </div>
+                    <p class="text-cyan-400 font-bold mt-4">>> CODE_BLOCK_02: MAXWELL EQUATIONS</p>
+                    <p class="text-gray-400">Gauss's Electromagnetic laws prove that net magnetic flux migrating through closed space boundaries always registers absolute zero (div B = 0), confirming that isolated magnetic monopoles are impossible.</p>`
+            },
+            3: {
+                title: "Wave Mechanics & Acoustics",
+                titleTh: "กลศาสตร์ทฤษฎีคลื่นและความเร็วเสียง",
+                content: `
+                    <p class="text-cyan-400 font-bold">>> CODE_BLOCK_01: PROPAGATION WAVELENGTH</p>
+                    <div class="bg-black/50 p-3 font-mono text-cyan-300 my-2 border-l-2 border-cyan-400">
+                        v = f * λ
+                    </div>
+                    <p class="text-gray-400">The Superposition Principle outlines that when overlapping wave streams traverse, the total displacement scales as the constructive or destructive cumulative sum vector.</p>`
+            },
+            4: {
+                title: "Quantum Physics & Relativistic Equivalents",
+                titleTh: "ฟิสิกส์ควอนตัมและสมมูลสัมพัทธภาพ",
+                content: `
+                    <p class="text-cyan-400 font-bold">>> CODE_BLOCK_01: ENERGY MASS CONVERSION</p>
+                    <div class="bg-black/50 p-3 font-mono text-cyan-300 my-2 border-l-2 border-cyan-400">
+                        E = m * c²
+                    </div>
+                    <p class="text-cyan-400 font-bold mt-4">>> CODE_BLOCK_02: PLANCK ELECTRONS</p>
+                    <p class="text-gray-400">Energy particles travel inside localized packets named photons: <strong>E = h * f</strong>, where Plank's constant (h) scales to exactly 6.626 x 10^-34 J·s.</p>`
+            }
+        };
+
+        // 2. EXAM DATA ARRAY
+        const physicsQuestions = [
+            {
+                q: "A projectile drops down from a cliff 80m high. Assuming constant acceleration g = 10 m/s², compute its flight duration to strike base coordinates.",
+                qTh: "วัตถุชิ้นหนึ่งหล่นลงมาจากหน้าผาสูง 80 เมตร หากกำหนดให้ค่าความเร่งเนื่องจากแรงดึงดูด g = 10 m/s² วัตถุจะใช้เวลาเดินทางตกถึงพื้นกี่วินาที?",
+                opts: ["2 seconds", "4 seconds", "6 seconds", "8 seconds"],
+                optsTh: ["2 วินาที", "4 วินาที", "6 วินาที", "8 วินาที"],
+                ans: 1,
+                rationale: "Applying equation s = ut + 0.5at²: 80 = 0 + 0.5*(10)*t² -> 80 = 5t² -> t² = 16 -> t = 4 seconds.",
+                rationaleTh: "คำนวณจากสูตรการเคลื่อนที่ s = ut + 0.5at²: 80 = 0 + 0.5*(10)*t² -> 80 = 5t² -> t² = 16 -> t = 4 วินาที"
+            },
+            {
+                q: "Which Maxwellian unified expression states that isolated magnetic monopoles do not exist in spatial tracking?",
+                qTh: "สมการกลไกควบรวมระบบของแมกซ์เวลล์ข้อใด ระบุความจริงว่าขั้วแม่เหล็กเดี่ยวแยกชิ้นไม่มีอยู่จริง?",
+                opts: ["Gauss's Law of Electricity", "Gauss's Law of Magnetism", "Faraday's Induction Law", "Ampere-Maxwell Law"],
+                optsTh: ["กฎของเกาส์ทางไฟฟ้า", "กฎของเกาส์ทางแม่เหล็ก", "กฎการเหนี่ยวนำของฟาราเดย์", "กฎของแอมแปร์-แมกซ์เวลล์"],
+                ans: 1,
+                rationale: "Gauss's Law for Magnetism sets div B = 0, dictating that net magnetic flux entering any closed boundary aggregates to zero.",
+                rationaleTh: "กฎของเกาส์สำหรับแม่เหล็กระบุค่า div B = 0 หมายความว่าฟลักซ์แม่เหล็กสุทธิที่ผ่านผิวปิดใดๆ จะรวมกันเป็นศูนย์เสมอ"
+            },
+            {
+                q: "An acoustic wave travels at 340 m/s with an active frequency of 170 Hz. Resolve its spatial wavelength parameter.",
+                qTh: "คลื่นเสียงเคลื่อนที่ด้วยความเร็ว 340 m/s และมีความถี่สม่ำเสมอ 170 Hz จงคำนวณหาความยาวคลื่นเสียงขบวนนี้?",
+                opts: ["0.5 meters", "1.5 meters", "2.0 meters", "3.4 meters"],
+                optsTh: ["0.5 เมตร", "1.5 เมตร", "2.0 เมตร", "3.4 เมตร"],
+                ans: 2,
+                rationale: "Utilizing speed vector formula λ = v / f -> λ = 340 / 170 = 2.0 meters.",
+                rationaleTh: "ใช้สูตรคำนวณคลื่นกลพื้นฐาน λ = v / f -> λ = 340 / 170 = 2.0 เมตร"
+            },
+            {
+                q: "According to special relativity coordinates, what transpires to localized mass properties as velocity approaches lightspeed (c)?",
+                qTh: "ตามทฤษฎีสัมพัทธภาพพิเศษ เกิดการแปรสภาพอย่างไรกับมวลของวัตถุเมื่อความเร็วเคลื่อนที่ขยับเข้าใกล้ความเร็วแสง (c)?",
+                opts: ["Mass decreases", "Mass remains constant", "Mass increases relative to observer", "Mass transforms to complex imaginary arrays"],
+                optsTh: ["มวลลดลงเรื่อยๆ", "มวลสารคงที่เท่าเดิม", "มวลขยายตัวเพิ่มขึ้นเมื่ออ้างอิงกับผู้สังเกต", "มวลสารแปรค่าเป็นจำนวนเชิงซ้อน"],
+                ans: 2,
+                rationale: "Relativistic coordinates magnify observed mass using gamma factor scaling metrics: m = m0 / sqrt(1 - v²/c²).",
+                rationaleTh: "มวลเชิงสัมพัทธภาพจะขยายตัวขึ้นตามอัตราเร่งแกมมาสัมพัทธ์ของผู้สังเกต เพื่อรักษาสมดุลไม่ให้วัตถุเร็วทะลุขีดจำกัดแสง"
+            },
+            {
+                q: "What characteristic of light fields is validated via the photoelectric effect framework explained by Einstein?",
+                qTh: "พฤติกรรมทางฟิสิกส์ข้อใดของแสง ที่ถูกพิสูจน์ยืนยันผ่านปรากฏการณ์โฟโตอิเล็กทริกที่รับรองโดยไอน์สไตน์?",
+                opts: ["Light acts as a constant Wave", "Light acts as a discrete Particle (Photon)", "Light tracks zero baseline mass", "Light is entirely electrostatic"],
+                optsTh: ["แสงทำตัวเป็นคลื่นต่อเนื่อง", "แสงแสดงคุณสมบัติเป็นก้อนอนุภาค (โฟตอน)", "มวลรวมคงที่ของแสงเป็นศูนย์", "แสงมีแรงทางไฟฟ้าสถิตล้วน"],
+                ans: 1,
+                rationale: "The photoelectric effect verified that light travels in localized packets of energy called photons, confirming the particle nature of light.",
+                rationaleTh: "ปรากฏการณ์โฟโตอิเล็กทริกพิสูจน์ว่าแสงเดินทางปะทะในรูปของกลุ่มก้อนพลังงานย่อยที่เรียกว่า โฟตอน ยืนยันคุณสมบัติอนุภาคของแสง"
+            }
+        ];
+
+        // 3. EQ SYSTEM DATA
+        const eqScenarios = [
+            {
+                q: "Scenario: ทีมแล็บของคุณกำลังดีเบตเรื่องทฤษฎีใหม่ แต่เพื่อนร่วมทีมใช้อารมณ์และไม่ฟังเหตุผล คุณจะตอบสนองอย่างไร?",
+                qEn: "Scenario: Your lab group is debating a new theory, but a peer gets highly emotional and refuses to listen. Your response vector is:",
+                opts: [
+                    { text: "นำเสนอข้อมูลและกราฟเพิ่ม ยืนยันด้วยหลักฐานทางวิทยาศาสตร์", textEn: "Present extra metrics and data arrays, enforcing objective proof.", score: 3 },
+                    { text: "หยุดดีเบตก่อน ถามเขาว่ารู้สึกอย่างไร และทำไมถึงคิดแบบนั้น", textEn: "Pause the argument, actively inquiring about their internal perspective.", score: 4 },
+                    { text: "สรุปประเด็นของทั้งสองฝ่าย และเสนอให้ทดสอบทฤษฎีทั้งคู่ในแล็บ", textEn: "Synthesize both viewpoints, proposing a split practical laboratory evaluation.", score: 4 },
+                    { text: "ถอยออกมา ปล่อยให้เขาพูดไปก่อน เดี๋ยวอารมณ์เย็นลงค่อยคุยใหม่", textEn: "Disengage immediately, allowing temporary emotional venting before re-entry.", score: 2 }
+                ]
+            },
+            {
+                q: "Scenario: โครงสร้างโปรเจกต์ไอคิวฟิสิกส์เกิดความล้มเหลวร้ายแรงก่อนหน้ากำหนดส่งงานให้นายทุน 10 นาที คุณจะทำอย่างไร?",
+                qEn: "Scenario: A critical system fail-state hits your project 10 minutes before an investor delivery presentation. You:",
+                opts: [
+                    { text: "รายงานข้อมูลผิดพลาดตรงๆ ขอยืดเวลาส่งมอบงานแล้วเริ่มแก้โค้ด", textEn: "Report telemetry deviation transparently, request buffer time, and execute patches.", score: 4 },
+                    { text: "โยนความรับผิดชอบไปให้หัวหน้าทีมวิศวกรเพื่อรักษาหน้าตาตัวเอง", textEn: "Deflect accountability directly to technical engineering leads to secure profile status.", score: 1 },
+                    { text: "เปลี่ยนแผนไปเปิดใช้วิดีโอเดโมจำลองที่บันทึกผลงานไว้ล่วงหน้าแทน", textEn: "Deploy a cached video demonstration module as an alternative contingency step.", score: 3 },
+                    { text: "ยกเลิกงานนัดพรีเซนต์กะทันหันเนื่องจากความเครียดลนลาน", textEn: "Cancel the submission terminal session due to systemic cognitive overload panic.", score: 1 }
+                ]
+            },
+            {
+                q: "Scenario: ลูกค้าองค์กรรายใหญ่โทรมาเหวี่ยงวีนด่าทอด้วยน้ำเสียงโมโหเรื่องบริการล่าช้า ขั้นตอนที่ดีที่สุดคือ:",
+                qEn: "Scenario: A premium enterprise client calls aggressively, using hostile language regarding a process delay. You:",
+                opts: [
+                    { text: "นิ่งสงบ ฟังความขัดข้อง รับอารมณ์ และเสนอโรดแมปแก้ปัญหาด่วน", textEn: "Maintain neural composure, active-listen to complaints, and dispatch structural fixes.", score: 4 },
+                    { text: "ขึ้นเสียงเถียงกลับทันทีว่าความล้าช้าเกิดจากความไม่พร้อมของฝั่งเขาเอง", textEn: "Elevate your vocal tone, arguing that their internal bottlenecks caused the delay.", score: 1 },
+                    { text: "กดวางสายใส่ทันทีเพื่อปกป้องสภาวะจิตใจของตนเองไม่ให้ขุ่นมัว", textEn: "Terminate the connection session immediately to safeguard personal mood index.", score: 2 },
+                    { text: "รับปากว่าจะโอนเงินคืนก้อนใหญ่ทันทีโดยไม่ตรวจสอบปรึกษาผู้จัดการก่อน", textEn: "Authorize massive credit refund vectors without prior coordination with executive leadership.", score: 2 }
+                ]
+            }
+        ];
+
+        // ENGINE APP STATE MACHINES
+        let activePhysicsIdx = 0;
+        let physicsScore = 0;
+        let isPhysicsAnswered = false;
+        
+        let activeEqIdx = 0;
+        let cumulativeEqScore = 0;
+        let isEqCompleted = false;
+
+        let isIqAnswered = false;
+
+        // LOAD DISPATCH
+        window.onload = function() {
+            showView('menu');
+            openLesson(1);
+        };
+
+        // VIEW ROUTER
+        function showView(viewId) {
+            currentView = viewId;
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+
+            const homeBtn = document.getElementById('homeBtn');
+            if (viewId === 'menu') {
+                homeBtn.classList.add('hidden');
+            } else {
+                homeBtn.classList.remove('hidden');
+            }
+
+            if (viewId === 'exam' && !isPhysicsAnswered) resetPhysicsQuiz();
+            if (viewId === 'eq' && !isEqCompleted) resetEqTest();
+            if (viewId === 'iq' && !isIqAnswered) resetIqQuiz();
+
+            updateLanguageRendering();
+        }
+
+        // BILINGUAL LANGUAGE ADAPTER
+        function toggleLanguage() {
+            currentLanguage = currentLanguage === 'en' ? 'th' : 'en';
+            updateLanguageRendering();
+        }
+
+        function updateLanguageRendering() {
+            const elements = document.querySelectorAll('.translate-content');
+            elements.forEach(el => {
+                const enText = el.getAttribute('data-en');
+                const thText = el.getAttribute('data-th');
+                el.innerHTML = (currentLanguage === 'th' && thText) ? thText : enText;
+            });
+
+            const activeTab = document.querySelector('.lesson-tab.bg-cyan-400');
+            if (activeTab) {
+                const activeId = activeTab.getAttribute('onclick').match(/\d+/)[0];
+                renderActiveLesson(activeId);
+            }
+
+            if (currentView === 'exam') renderPhysicsQuestion();
+            if (currentView === 'eq') renderEqScenario();
+        }
+
+        // ACADEMIC DATA RENDERING
+        function openLesson(lessonId) {
+            const tabs = document.querySelectorAll('.lesson-tab');
+            tabs.forEach(tab => {
+                tab.className = "lesson-tab py-2 text-xs font-bold border border-gray-800 text-cyan-400 hover:border-cyan-400 translate-content";
+            });
+            tabs[lessonId - 1].className = "lesson-tab py-2 text-xs font-bold border border-cyan-400 bg-cyan-400 text-black translate-content";
+            renderActiveLesson(lessonId);
+        }
+
+        function renderActiveLesson(lessonId) {
+            const lesson = physicsLessons[lessonId];
+            const title = currentLanguage === 'th' ? lesson.titleTh : lesson.title;
+            document.getElementById('lessonBody').innerHTML = `
+                <h3 class="text-lg font-bold text-cyan-400 font-mono">${title}</h3>
+                <div class="text-xs text-gray-300 leading-relaxed mt-2">${lesson.content}</div>`;
+        }
+
+        // PHYSICS QUIZ FUNCTIONALITY
+        function resetPhysicsQuiz() {
+            activePhysicsIdx = 0;
+            physicsScore = 0;
+            isPhysicsAnswered = false;
+            document.getElementById('physicsFeedback').classList.add('hidden');
+            renderPhysicsQuestion();
+        }
+
+        function renderPhysicsQuestion() {
+            const currentQ = physicsQuestions[activePhysicsIdx];
+            document.getElementById('quizIndex').innerText = activePhysicsIdx + 1;
+            document.getElementById('quizScore').innerText = physicsScore;
+            document.getElementById('physicsQuestion').innerText = currentLanguage === 'th' ? currentQ.qTh : currentQ.q;
+
+            const container = document.getElementById('physicsOptions');
+            container.innerHTML = '';
+
+            const choices = currentLanguage === 'th' ? currentQ.optsTh : currentQ.opts;
+            choices.forEach((opt, index) => {
+                const div = document.createElement('div');
+                div.className = "option text-sm";
+                div.innerHTML = `<span class="text-cyan-400 font-mono font-bold">${String.fromCharCode(65 + index)}.</span> ${opt}`;
+                if (!isPhysicsAnswered) {
+                    div.onclick = () => evaluatePhysicsAnswer(index);
+                } else {
+                    if (index === currentQ.ans) div.classList.add('!border-emerald-500', 'bg-emerald-500/10');
+                }
+                container.appendChild(div);
+            });
+        }
+
+        function evaluatePhysicsAnswer(index) {
+            if (isPhysicsAnswered) return;
+            isPhysicsAnswered = true;
+
+            const currentQ = physicsQuestions[activePhysicsIdx];
+            const container = document.getElementById('physicsOptions');
+            const optionsDivs = container.querySelectorAll('.option');
+
+            const isCorrect = index === currentQ.ans;
+            if (isCorrect) {
+                physicsScore++;
+                document.getElementById('quizScore').innerText = physicsScore;
+                document.getElementById('feedbackStatus').innerText = currentLanguage === 'th' ? "✓ เวกเตอร์พิกัดถูกต้อง" : "✓ VECTOR ALIGNMENT VERIFIED";
+                document.getElementById('feedbackStatus').className = "font-bold text-emerald-400 font-mono tracking-wider";
+                optionsDivs[index].classList.add('!border-emerald-500', 'bg-emerald-500/20');
+            } else {
+                document.getElementById('feedbackStatus').innerText = currentLanguage === 'th' ? "✕ ตรรกะประมวลผลคลาดเคลื่อน" : "✕ LOGICAL DEVIATION DETECTED";
+                document.getElementById('feedbackStatus').className = "font-bold text-red-400 font-mono tracking-wider";
+                optionsDivs[index].classList.add('!border-red-500', 'bg-red-500/20');
+                optionsDivs[currentQ.ans].classList.add('!border-emerald-500', 'bg-emerald-500/10');
+            }
+
+            document.getElementById('feedbackExplanation').innerHTML = `<strong>RATIONALE:</strong> ${currentLanguage === 'th' ? currentQ.rationaleTh : currentQ.rationale}`;
+            document.getElementById('physicsFeedback').classList.remove('hidden');
+        }
+
+        function nextPhysicsQuestion() {
+            document.getElementById('physicsFeedback').classList.add('hidden');
+            isPhysicsAnswered = false;
+            if (activePhysicsIdx < physicsQuestions.length - 1) {
+                activePhysicsIdx++;
+                renderPhysicsQuestion();
+            } else {
+                showCustomNotification(currentLanguage === 'th' ? `สอบเสร็จสิ้น! คะแนนรวม: ${physicsScore}/5` : `MODULE EVALUATION COMPLETE. TOTAL ACCURACY: ${physicsScore}/5`);
+                showView('menu');
+            }
+        }
+
+        // IQ SELECTION SYSTEM
+        function resetIqQuiz() {
+            isIqAnswered = false;
+            document.getElementById('iq-score').innerText = '0';
+            document.getElementById('iqFeedback').classList.add('hidden');
+            document.querySelectorAll('.iq-choice-btn').forEach(btn => btn.classList.remove('selected'));
+            document.getElementById('iqOpt1').className = "option";
+            document.getElementById('iqOpt2').className = "option";
+            document.getElementById('iqOpt3').className = "option";
+        }
+
+        function submitIqAnswer(answer, optionIndex) {
+            if (isIqAnswered) return;
+            isIqAnswered = true;
+
+            const title = document.getElementById('iqResultTitle');
+            const rationale = document.getElementById('iqRationale');
+            const targetDiv = document.getElementById('iqOpt' + optionIndex);
+
+            if (answer === '◐') {
+                document.getElementById('iq-score').innerText = '1';
+                title.innerText = currentLanguage === 'th' ? "✓ สแกนข่ายประสาทสมบูรณ์ขั้นสูง" : "✓ NEURAL PATTERN VERIFIED";
+                title.className = "font-bold text-emerald-400 font-mono tracking-widest";
+                targetDiv.classList.add('!border-emerald-500', 'bg-emerald-500/10');
+                rationale.innerHTML = currentLanguage === 'th' ? 
+                    "<strong>คำอธิบาย (Rationale):</strong> แต่ละแถวและคอลัมน์ของตารางเมทริกซ์ 3x3 ต้องบรรจุรูปเรขาคณิต ●, ◐, และ ○ ครบถ้วนตามสัดส่วนการหมุนเวกเตอร์ ดังนั้น ช้อยส์ A จึงจัดเป็นคำตอบหนึ่งเดียวที่สอดคล้องอย่างสมบูรณ์" :
+                    "<strong>Rationale:</strong> Each coordinate row and column set must mathematically retain an aggregate distribution of ●, ◐, and ○ shapes. Choice A represents the only configuration matching fluid permutation guidelines.";
+            } else {
+                title.innerText = currentLanguage === 'th' ? "✕ การจัดตรรกะเบี่ยงเบน" : "✕ LOGICAL SEQUENCE EXCLUSION";
+                title.className = "font-bold text-red-400 font-mono tracking-widest";
+                targetDiv.classList.add('!border-red-400', 'bg-red-400/10');
+                document.getElementById('iqOpt1').classList.add('!border-emerald-500'); 
+                rationale.innerHTML = currentLanguage === 'th' ? 
+                    "<strong>คำอธิบาย (Rationale):</strong> รูปแบบกลณิตที่คุณเลือกไม่ตรงเกณฑ์พิกัดความถี่ ตารางด่านที่ขาดหายไปจำเป็นต้องเป็นครึ่งเสี้ยว ◐ เพื่อเติมเต็มอนุกรม" :
+                    "<strong>Rationale:</strong> The designated option fails spatial parity tracking. The correct element requires a half-filled circle matrix shape ◐ to complete the vector sequence loop.";
+            }
+            document.getElementById('iqFeedback').classList.remove('hidden');
+        }
+
+        // EQ DIAGNOSTIC MACHINE
+        function resetEqTest() {
+            activeEqIdx = 0;
+            cumulativeEqScore = 0;
+            isEqCompleted = false;
+            document.getElementById('eq-profile').textContent = 'UNDEFINED';
+            document.getElementById('eqResultCard').classList.add('hidden');
+            document.getElementById('eqOptions').parentNode.classList.remove('hidden');
+            renderEqScenario();
+        }
+
+        function renderEqScenario() {
+            const currentS = eqScenarios[activeEqIdx];
+            document.getElementById('eqIndex').innerText = activeEqIdx + 1;
+            document.getElementById('eqScenarioText').innerText = currentLanguage === 'th' ? currentS.q : currentS.qEn;
+
+            const container = document.getElementById('eqOptions');
+            container.innerHTML = '';
+
+            currentS.opts.forEach((opt, index) => {
+                const div = document.createElement('div');
+                div.className = "option text-xs leading-relaxed font-mono";
+                div.innerHTML = `<span class="text-purple-400 font-bold">${index + 1}.</span> ${currentLanguage === 'th' ? opt.text : opt.textEn}`;
+                div.onclick = () => processEqChoice(opt.score);
+                container.appendChild(div);
+            });
+        }
+
+        function processEqChoice(score) {
+            cumulativeEqScore += score;
+            if (activeEqIdx < eqScenarios.length - 1) {
+                activeEqIdx++;
+                renderEqScenario();
+            } else {
+                isEqCompleted = true;
+                document.getElementById('eqOptions').parentNode.classList.add('hidden');
+                
+                const profileEl = document.getElementById('eq-profile');
+                let targetProfile = "LOGIC-PRIME";
+                let report = "";
+
+                if (cumulativeEqScore >= 10) {
+                    targetProfile = "COMMAND-TYPE";
+                    report = currentLanguage === 'th' ?
+                        `<strong>ดัชนีตรวจประจุ: ยอดเยี่ยม (${cumulativeEqScore}/12) [โปรไฟล์: COMMAND-TYPE]</strong><br>คุณมีทักษะระดับผู้นำสูงยิ่ง มีเวกเตอร์ควบคุมความกดดันและประนีประนอมความขัดแย้งเชิงโครงสร้างบุคคลได้เสถียรไร้จุดบกพร่อง` :
+                        `<strong>METRICS EVALUATION: EXCEPTIONAL (${cumulativeEqScore}/12) [PROFILE: COMMAND-TYPE]</strong><br>You command dynamic interpersonal intelligence parameters. You operate with optimal emotional self-regulation when treating systemic high-tension fail-states.`;
+                } else if (cumulativeEqScore >= 6) {
+                    targetProfile = "LOGIC-PRIME";
+                    report = currentLanguage === 'th' ?
+                        `<strong>ดัชนีตรวจประจุ: สมดุลพื้นฐาน (${cumulativeEqScore}/12) [โปรไฟล์: LOGIC-PRIME]</strong><br>คุณประมวลผลวิกฤตด้วยตรรกะระบบวิทยาศาสตร์ได้ดีเยี่ยม แต่อาจมองข้ามความจำเป็นด้านการฟีดแบ็กความตระหนักรู้อารมณ์ของเพื่อนร่วมทีม` :
+                        `<strong>METRICS EVALUATION: NOMINAL (${cumulativeEqScore}/12) [PROFILE: LOGIC-PRIME]</strong><br>You utilize rigid logic tracks to resolve issues. Refining empathetic active-listening nodes will increase coordination interface speed.`;
+                } else {
+                    targetProfile = "STEALTH-MODE";
+                    report = currentLanguage === 'th' ?
+                        `<strong>ดัชนีตรวจประจุ: ควรกระตุ้นเพิ่ม (${cumulativeEqScore}/12) [โปรไฟล์: STEALTH-MODE]</strong><br>คุณมีความตึงเครียดสะสมง่ายเมื่อระบบหลุดผังระเบียบ แนะนำให้ฝึกฝนระบบควบคุมการเผชิญหน้าอารมณ์และการตั้งแนวเขตใจ` :
+                        `<strong>METRICS EVALUATION: DEVIANT (${cumulativeEqScore}/12) [PROFILE: STEALTH-MODE]</strong><br>Your profile indicates vulnerability to stress parameters. Adjusting personal emotional boundaries will lower systemic cognitive spikes.`;
+                }
+
+                profileEl.textContent = targetProfile;
+                document.getElementById('eqAnalysisText').innerHTML = report;
+                document.getElementById('eqResultCard').classList.remove('hidden');
+            }
+        }
+
+        // LOCAL AUTOMATED QR ENGINE
+        function generateAppQRCode() {
+            const val = document.getElementById('qrInput').value.trim();
+            if (!val) {
+                showCustomNotification("TELEMETRY_ERROR: Input query can not be blank.");
+                return;
+            }
+            new QRious({
+                element: document.getElementById('qrCanvas'),
+                value: val,
+                size: 160,
+                background: '#ffffff',
+                foreground: '#020204',
+                level: 'H'
+            });
+            document.getElementById('qrResultArea').classList.remove('hidden');
+            showCustomNotification("QR code streaming sequence executed.");
+        }
+
+        // TELEMETRY NOTIFICATION UTIL
+        function showCustomNotification(msg) {
+            const box = document.getElementById('customAlert');
+            document.getElementById('alertMessage').innerText = `SYS_FEEDBACK: ${msg}`;
+            box.classList.remove('hidden');
+            setTimeout(() => box.classList.add('hidden'), 5000);
+        }
+
+        // CLOSE TELEMETRY BANNER
+        function closeAlert() {
+            document.getElementById('customAlert').classList.add('hidden');
+        }
+    </script>
+
+</body>
+</html>
