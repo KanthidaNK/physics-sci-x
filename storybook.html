@@ -15,7 +15,7 @@
             margin: 0;
             padding: 20px;
         }
-        /* โซนกล่องอัจฉริยะสำหรับใส่นิทานใหม่ */
+        /* 📥 โซนกล่องอัจฉริยะสำหรับใส่นิทานใหม่ */
         .import-zone {
             background: #ffffff;
             padding: 20px;
@@ -29,12 +29,13 @@
         .import-zone textarea {
             width: 100%;
             height: 100px;
-            padding: 10px;
+            padding: 12px;
             border-radius: 8px;
             border: 1px solid #ddd;
             font-family: monospace;
             resize: vertical;
             box-sizing: border-box;
+            font-size: 14px;
         }
         .import-btn {
             background-color: #2ecc71;
@@ -47,6 +48,7 @@
             margin-top: 10px;
             width: 100%;
             font-size: 16px;
+            transition: background 0.2s;
         }
         .import-btn:hover { background-color: #27ae60; }
         
@@ -142,8 +144,8 @@
 <body>
 
 <div class="import-zone">
-    <label style="font-weight: bold; color: #2c3e50; display:block; margin-bottom: 8px;">📥 นำเข้านิทานเรื่องใหม่ (วาง JSON จากเจมส์ที่นี่):</label>
-    <textarea id="jsonInput" placeholder="วางโค้ด JSON ที่คัดลอกมาจากเจมส์ตรงนี้..."></textarea>
+    <label style="font-weight: bold; color: #2c3e50; display:block; margin-bottom: 8px; font-size: 16px;">📥 นำเข้านิทานเรื่องใหม่ (วางโค้ด JSON จากเจมส์ที่นี่):</label>
+    <textarea id="jsonInput" placeholder="ก๊อปปี้โค้ด JSON ทั้งหมดจากเจมส์มาวางในช่องนี้..."></textarea>
     <button class="import-btn" onclick="loadUserJson()">⚡ เสกนิทานขึ้นหน้าเว็บทันที</button>
 </div>
 
@@ -153,34 +155,38 @@
 </div>
 
 <script>
+    // ฟังก์ชันอ่านค่า JSON จากหน้าจอมาวาดนิทานทันที โดยผู้ใช้ไม่ต้องเปิดโค้ดแก้เอง
     function loadUserJson() {
         const rawData = document.getElementById('jsonInput').value.trim();
         if(!rawData) {
-            alert("กรุณาวางโค้ด JSON ก่อนครับ");
+            alert("กรุณาวางโค้ด JSON จากเจมส์ก่อนครับ");
             return;
         }
         try {
             const parsedData = JSON.parse(rawData);
             renderStory(parsedData);
-            document.getElementById('jsonInput').value = ""; 
+            document.getElementById('jsonInput').value = ""; // ล้างกล่องข้อความเมื่อทำเสร็จ
+            window.scrollTo({ top: document.querySelector('.book-container').offsetTop - 20, behavior: 'smooth' });
         } catch(e) {
-            alert("❌ โค้ด JSON ไม่ถูกต้อง กรุณาก๊อปปี้จากเจมส์มาให้ครบถ้วนครับ!");
+            alert("❌ โค้ด JSON ไม่ถูกต้อง! กรุณาตรวจสอบว่าคัดลอกมาจากเจมส์ครบถ้วนตั้งแต่เครื่องหมายปีกกาเปิด { ไปจนถึงปีกกาปิด } หรือไม่");
         }
     }
 
     function renderStory(data) {
-        const titleText = (data.title_th && data.title_en) ? `${data.title_th} (${data.title_en})` : (data.title || "นิทานโดย Xero Studio");
+        // จัดการชื่อเรื่องตามโหมดโครงสร้างใหม่
+        const titleText = data.title_th ? `${data.title_th} (${data.title_en || ''})` : (data.title || 'นิทานเรื่องใหม่');
         document.getElementById('book-title').innerText = titleText;
         
         const pagesContainer = document.getElementById('storybook-pages');
         pagesContainer.innerHTML = ''; 
 
+        // 1. ถ้าข้อมูลที่ส่งมาเป็นโหมด "หน้าปก" (Type: Cover)
         if (data.type === "cover") {
             const coverCard = document.createElement('div');
             coverCard.className = 'page-card cover-card';
             
             const currentCoverUrl = "cover.png";
-            const imgHTML = `<img src="${currentCoverUrl}" class="story-img" onerror="this.style.display='none';">`;
+            const imgHTML = `<img src="${currentCoverUrl}" class="story-img" onload="document.getElementById('cover-pbox').style.display='none';" onerror="this.style.display='none';">`;
 
             coverCard.innerHTML = `
                 <div class="page-number">
@@ -188,33 +194,51 @@
                     <span style="color: #7f8c8d; font-size: 13px; font-weight: bold;">© Xero Studio</span>
                 </div>
                 ${imgHTML}
-                <div class="prompt-box" style="border-left-color: #3498db; background-color: #f0f7fc;">
-                    <strong style="color: #2980b9;">🎨 คัดลอก Prompt สำหรับสร้างภาพหน้าปก:</strong>
+                <div class="prompt-box" id="cover-pbox" style="border-left-color: #3498db; background-color: #f0f7fc;">
+                    <strong style="color: #2980b9;">🎨 คัดลอก Prompt สำหรับสร้างภาพหน้าปกไปสั่งวาดรูป:</strong>
                     <div class="prompt-text">${data.cover_prompt}</div>
                 </div>
             `;
             pagesContainer.appendChild(coverCard);
         } 
+        // 2. ถ้าข้อมูลที่ส่งมาเป็นโหมด "เนื้อเรื่อง" (Type: Content)
         else if (data.pages && Array.isArray(data.pages)) {
             data.pages.forEach((page) => {
                 const card = document.createElement('div');
                 card.className = 'page-card';
                 
                 const currentImgUrl = `p${page.page_number}.png`;
-                const imgHTML = `<img src="${currentImgUrl}" class="story-img" onerror="this.style.display='none';">`;
-                
-                const textThai = page.story_text_th || "";
-                const textEng = page.story_text_en || "";
-                const engHTML = textEng ? `<p class="story-text" style="color: #57606f; font-style: italic;"><b>EN:</b> ${textEng}</p>` : '';
+                const imgHTML = `<img src="${currentImgUrl}" class="story-img" onload="document.getElementById('pbox-${page.page_number}').style.display='none';" onerror="this.style.display='none';">`;
 
                 card.innerHTML = `
                     <div class="page-number">
                         <span>หน้าที่ ${page.page_number}</span>
-                        <button class="audio-btn" onclick="speakText('${escapeJS(textThai)}')">🔊 อ่านให้ฟัง</button>
+                        <button class="audio-btn" onclick="speakText('${escapeJS(page.story_text_th)}')">🔊 อ่านให้ฟัง</button>
                     </div>
                     ${imgHTML}
-                    <p class="story-text"><b>TH:</b> ${textThai}</p>
-                    ${engHTML}
+                    <p class="story-text"><b>TH:</b> ${page.story_text_th}</p>
+                    <p class="story-text" style="color: #57606f; font-style: italic;"><b>EN:</b> ${page.story_text_en || ''}</p>
                     <div class="prompt-box" id="pbox-${page.page_number}">
-                        <strong>🎨 คัดลอก Prompt นี้ไปสร้างภาพ:</strong>
+                        <strong>🎨 คัดลอก Prompt นี้ไปสร้างภาพประกอบหน้าที่ ${page.page_number}:</strong>
                         <div class="prompt-text">${page.image_prompt}</div>
+                    </div>
+                `;
+                pagesContainer.appendChild(card);
+            });
+        }
+    }
+
+    function speakText(text) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'th-TH'; 
+        window.speechSynthesis.speak(utterance);
+    }
+
+    function escapeJS(str) {
+        return str.replace(/'/g, "\\'").replace(/"/g, '\\"');
+    }
+</script>
+
+</body>
+</html>
