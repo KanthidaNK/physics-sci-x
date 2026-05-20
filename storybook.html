@@ -1,0 +1,195 @@
+ <!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบแสดงผล Storybook อัจฉริยะ</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .book-container {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            max-width: 650px;
+            width: 100%;
+        }
+        .story-title {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        .page-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            overflow: hidden;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .page-number {
+            font-weight: bold;
+            color: #3498db;
+            font-size: 1.1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .story-img {
+            width: 100%;
+            height: auto;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 12px;
+            background-color: #eaeaea;
+        }
+        .story-text {
+            font-size: 17px;
+            line-height: 1.8;
+            color: #2c3e50;
+        }
+        .audio-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background 0.2s;
+        }
+        .audio-btn:hover {
+            background-color: #2980b9;
+        }
+        .prompt-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #2ecc71;
+            padding: 12px;
+            border-radius: 0 8px 8px 0;
+            font-size: 13px;
+            color: #7f8c8d;
+        }
+        .prompt-text {
+            background: #ffffff;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-top: 5px;
+            user-select: all; /* คลิกแล้วคลุมดำทั้งหมดอัตโนมัติ */
+        }
+    </style>
+</head>
+<body>
+
+<div class="book-container">
+    <h1 id="book-title" class="story-title">กำลังโหลดนิทาน...</h1>
+    <div id="storybook-pages"></div>
+</div>
+
+<script>
+    // 💡 ขั้นตอนต่อไปของคุณ: 
+    // 1. นำข้อมูลจาก Gem มาวางที่นี่
+    // 2. เจนภาพเสร็จแล้ว นำลิงก์รูปภาพมาใส่ในช่อง "image_url" (ถ้ายังไม่มีภาพให้ใส่ "" ไปก่อน ระบบจะซ่อนกล่องภาพให้เอง)
+    // ตรงนี้คือจุดที่อยู่บนหน้าจอของคุณตอนนี้ครับ:
+
+const customStoryData = {
+      "title": "ลูกหมูสามตัวกับหมาป่าเจ้าเล่ห์",
+      "pages": [
+        {
+          "page_number": 1,
+          "story_text": "กาลครั้งหนึ่งนานมาแล้ว มีลูกหมูสามตัวเป็นพี่น้องกัน พวกมันตัดสินใจออกเดินทางไปสร้างบ้านของตัวเอง พี่ใหญ่จอมขี้เกียจเลือกสร้างบ้านด้วยฟางเพราะเสร็จเร็วที่สุด พี่รองผู้รักความสบายเลือกสร้างบ้านด้วยเศษไม้ ส่วนน้องเล็กผู้ขยันขันแข็งยอมเหน็ดเหนื่อยเพื่อสร้างบ้านด้วยอิฐที่แข็งแรง",
+          "image_prompt": "Three cute little cartoon pigs waving goodbye, walking on a dirt path in a sunny green meadow. In the background, one pig is building a straw house, another is building a wooden house, and the third is building a brick house, vibrant and colorful children's book illustration style.",
+          "image_url": "p1.png" 
+        },
+        {
+          "page_number": 2,
+          "story_text": "วันหนึ่ง หมาป่าใจร้ายโผล่มาจากในป่า มันเดินมาที่บ้านฟางของพี่ใหญ่แล้วสูดลมหายใจลึกๆ ก่อนจะเป่าลมพ่นออกมาเพียงครั้งเดียว บ้านฟางก็ปลิวหายไปในอากาศ! พี่ใหญ่ตกใจกลัวมาก จึงรีบวิ่งหนีไปที่บ้านไม้ของพี่รองทันที",
+          "image_prompt": "A big bad grey wolf with sharp teeth, puffing his cheeks and blowing hard at a fragile straw house. The straw house is flying apart in the wind. A scared little pig is running away towards a wooden house, dynamic, whimsical children's book illustration.",
+          "image_url": "p2.png"
+        },
+        {
+          "page_number": 3,
+          "story_text": "หมาป่าเจ้าเล่ห์ตามมาถึงบ้านไม้ของพี่รอง มันสูดลมหายใจเข้าลึกยิ่งกว่าเดิม แล้วเป่าลมสุดแรงเกิด บ้านไม้พังทลายลงมาเป็นชิ้นๆ ลูกหมูทั้งสองตัวตื่นตระหนกตกใจอย่างมาก พวกมันรีบวิ่งสี่ขาโกยอ้าวไปที่บ้านอิฐของน้องเล็กโดยไม่เหลียวหลัง",
+          "image_prompt": "The big bad wolf blowing strongly at a wooden house made of sticks. The wooden house is breaking apart and collapsing. Two terrified little pigs are running fast towards a sturdy red brick house nearby, colorful fairytale style.",
+          "image_url": "p3.png"
+        },
+        {
+          "page_number": 4,
+          "story_text": "หมาป่าวิ่งตามมาถึงบ้านอิฐ มันพยายามสูดลมเป่าอีกครั้งและอีกครั้งจนหน้าดำหน้าแดง แต่บ้านอิฐก็ไม่ขยับเขยื้อนเลยแม้แต่น้อย เมื่อเห็นว่าเป่าไม่พัง หมาป่าจึงปีนขึ้นไปบนหลังคาและพยายามจะมุดลงมาทางปล่องไฟเพื่อจับลูกหมูกิน",
+          "image_prompt": "The big bad wolf, looking tired and frustrated with red cheeks, trying to blow down a solid red brick house but failing. In the next moment, the wolf is climbing up the roof towards a brick chimney, while the house stands perfectly still, bright and detailed animation style.",
+          "image_url": "p4.png"
+        },
+        {
+          "page_number": 5,
+          "story_text": "แต่น้องเล็กผู้ชาญฉลาดได้ตั้งหม้อต้มน้ำร้อนรอไว้ที่เตาผิงด้านล่างแล้ว! เมื่อหมาป่ารูดตัวลงมาจากปล่องไฟ ก้นของมันก็กระแทกเข้ากับน้ำร้อนลวกอย่างจัง หมาป่าร้องลั่นด้วยความเจ็บปวดแล้วกระโดดหนีเตลิดเปิดเปิงเข้าป่าไป และไม่กล้ากลับมาตอแยกับลูกหมูสามตัวอีกเลย",
+          "image_prompt": "Inside a cozy brick house, a big pot of boiling water sits on a fireplace. The wolf is shooting up out of the chimney into the sky, clutching his burnt tail with a funny painful expression. Three little pigs are cheering and hugging each other happily, heartwarming children's book illustration.",
+          "image_url": "p5.png"
+        }
+      ]
+    };
+    // ฟังก์ชันสร้างหน้านิทานและระบบเสียง
+    function buildStorybook(data) {
+        document.getElementById('book-title').innerText = data.title;
+        const pagesContainer = document.getElementById('storybook-pages');
+        pagesContainer.innerHTML = ''; 
+
+        data.pages.forEach((page, index) => {
+            const card = document.createElement('div');
+            card.className = 'page-card';
+            
+            // ตรวจสอบว่ามีรูปภาพหรือไม่ ถ้าไม่มีจะไม่แสดงกล่องรูป
+            const imgHTML = page.image_url ? `<img src="${page.image_url}" class="story-img" alt="Illustration">` : '';
+
+            card.innerHTML = `
+                <div class="page-number">
+                    <span>หน้าที่ ${page.page_number}</span>
+                    <button class="audio-btn" onclick="speakText('${escapeJS(page.story_text)}')">🔊 อ่านให้ฟัง</button>
+                </div>
+                ${imgHTML}
+                <p class="story-text">${page.story_text}</p>
+                <div class="prompt-box">
+                    <strong>🎨 คัดลอก Prompt นี้ไปสร้างภาพ:</strong>
+                    <div class="prompt-text">${page.image_prompt}</div>
+                </div>
+            `;
+            pagesContainer.appendChild(card);
+        });
+    }
+
+    // ระบบออกเสียงภาษาไทย (Text-to-Speech)
+    function speakText(text) {
+        // หากกำลังพูดอยู่ให้หยุดก่อน
+        window.speechSynthesis.cancel();
+        
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'th-TH'; // บังคับใช้เสียงภาษาไทย
+        utterance.rate = 1.0;     // ความเร็วเสียงมาตรฐาน
+        
+        window.speechSynthesis.speak(utterance);
+    }
+
+    // ฟังก์ชันช่วยจัดการข้อความพิเศษ
+    function escapeJS(str) {
+        return str.replace(/'/g, "\\'").replace(/"/g, '\\"');
+    }
+
+    // เรียกใช้งานระบบ
+    buildStorybook(customStoryData);
+</script>
+
+</body>
+</html>
