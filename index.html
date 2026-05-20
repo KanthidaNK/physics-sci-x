@@ -7,40 +7,52 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f6f9;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            padding: 20px;
+            padding: 40px 20px;
+            perspective: 1000px; 
         }
         .book-container {
             display: flex;
             flex-direction: column;
-            gap: 25px;
+            gap: 35px;
             max-width: 650px;
             width: 100%;
         }
         .story-title {
             text-align: center;
             color: #2c3e50;
-            font-size: 2rem;
+            font-size: 2.2rem;
             margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
         .page-card {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.06); 
             overflow: hidden;
-            padding: 24px;
+            padding: 28px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 18px;
+            transform-style: preserve-3d;
+            transform: perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1);
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            will-change: transform;
+        }
+        .page-card:hover {
+            box-shadow: 0 30px 60px rgba(0,0,0,0.12);
         }
         .cover-card {
             border: 2px solid #3498db;
-            background: linear-gradient(to bottom, #ffffff, #f7fafd);
+            background: linear-gradient(to bottom, #ffffff, #f2f7fc);
+        }
+        .story-img, .story-text, .page-number, .prompt-box {
+            transform: translateZ(30px); 
         }
         .page-number {
             font-weight: bold;
@@ -57,15 +69,17 @@
             border-radius: 12px;
             font-size: 12px;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         .story-img {
             width: 100%;
             height: auto;
             max-height: 400px;
             object-fit: cover;
-            border-radius: 12px;
+            border-radius: 14px;
             background-color: #eaeaea;
             margin-bottom: 5px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
         }
         .story-text {
             font-size: 17px;
@@ -77,30 +91,36 @@
             background-color: #3498db;
             color: white;
             border: none;
-            padding: 8px 16px;
+            padding: 8px 18px;
             border-radius: 20px;
             cursor: pointer;
             font-size: 14px;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.2);
         }
-        .audio-btn:hover { background-color: #2980b9; }
+        .audio-btn:hover { 
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
         .prompt-box {
             background-color: #f8f9fa;
             border-left: 4px solid #2ecc71;
-            padding: 12px;
-            border-radius: 0 8px 8px 0;
+            padding: 14px;
+            border-radius: 0 12px 12px 0;
             font-size: 13px;
             color: #7f8c8d;
         }
         .prompt-text {
             background: #ffffff;
-            padding: 6px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            margin-top: 5px;
+            padding: 8px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            margin-top: 6px;
             user-select: all;
+            word-break: break-all;
         }
     </style>
 </head>
@@ -112,6 +132,7 @@
 </div>
 
 <script>
+    // [แก้ไข] เติมเนื้อหาหน้า 3, 4, 5 กลับเข้ามาให้ครบถ้วนสมบูรณ์
     const customStoryData = {
         "title": "ลูกหมูสามตัวกับหมาป่าเจ้าเล่ห์",
         "cover": {
@@ -122,32 +143,27 @@
             {
                 "page_number": 1,
                 "story_text_th": "กาลครั้งหนึ่งนานมาแล้ว มีลูกหมูสามตัวเป็นพี่น้องกัน พวกมันตัดสินใจออกเดินทางไปสร้างบ้านของตัวเอง พี่ใหญ่จอมขี้เกียจเลือกสร้างบ้านด้วยฟางเพราะเสร็จเร็วที่สุด พี่รองผู้รักความสบายเลือกสร้างบ้านด้วยเศษไม้ ส่วนน้องเล็กผู้ขยันขันแข็งยอมเหน็ดเหนื่อยเพื่อสร้างบ้านด้วยอิฐที่แข็งแรง",
-                "story_text_en": "Once upon a time, there were three little pigs who were brothers. They decided to build their own houses. The lazy oldest brother chose to build a straw house because it was the fastest. The middle brother, who loved comfort, chose to build a house of sticks. The hard-working youngest brother willingly put in the effort to build a sturdy brick house.",
-                "image_prompt": "Three cute little cartoon pigs waving goodbye, walking on a dirt path in a sunny green meadow. Pure cinematic animation style, vibrant character design, clean scenery, strict no text, no words, no fonts, no layout panels, full single scene view, no text overlapping."
+                "story_text_en": "Once upon a time, there were three little pigs who were brothers. They decided to build their own houses. The lazy oldest brother chose to build a straw house because it was the fastest. The middle brother, who loved comfort, chose to build a house of sticks. The hard-working youngest brother willingly put in the effort to build a sturdy brick house."
             },
             {
                 "page_number": 2,
                 "story_text_th": "วันหนึ่ง หมาป่าใจร้ายโผล่มาจากในป่า มันเดินมาที่บ้านฟางของพี่ใหญ่แล้วสูดลมหายใจลึกๆ ก่อนจะเป่าลมพ่นออกมาเพียงครั้งเดียว บ้านฟางก็ปลิวหายไปในอากาศ! พี่ใหญ่ตกใจกลัวมาก จึงรีบวิ่งหนีไปที่บ้านไม้ของพี่รองทันที",
-                "story_text_en": "One day, a big bad wolf emerged from the forest. He walked up to the oldest brother's straw house, took a deep breath, and with just one blow, huffed and puffed the straw house away into the air! Terrified, the oldest brother ran as fast as he could to his brother's wooden house.",
-                "image_prompt": "A big bad grey wolf with sharp teeth, puffing his cheeks and blowing hard at a fragile straw house. The straw house is flying apart in the wind. A scared little pig is running away towards a wooden house. Pure cinematic animation style, vibrant character design, clean scenery, strict no text, no words, no fonts, no layout panels, full single scene view, no text overlapping."
+                "story_text_en": "One day, a big bad wolf emerged from the forest. He walked up to the oldest brother's straw house, took a deep breath, and with just one blow, huffed and puffed the straw house away into the air! Terrified, the oldest brother ran as fast as he could to his brother's wooden house."
             },
             {
                 "page_number": 3,
                 "story_text_th": "หมาป่าเจ้าเล่ห์ตามมาถึงบ้านไม้ของพี่รอง มันสูดลมหายใจเข้าลึกยิ่งกว่าเดิม แล้วเป่าลมสุดแรงเกิด บ้านไม้พังทลายลงมาเป็นชิ้นๆ ลูกหมูทั้งสองตัวตื่นตระหนกตกใจอย่างมาก พวกมันรีบวิ่งสี่ขาโกยอ้าวไปที่บ้านอิฐของน้องเล็กโดยไม่เหลียวหลัง",
-                "story_text_en": "The clever wolf followed them to the middle brother's wooden house. He took an even deeper breath and blew with all his might, causing the stick house to collapse into pieces. Deeply panicked, both little pigs scrambled on all fours and ran towards the youngest brother's brick house without looking back.",
-                "image_prompt": "The big bad wolf blowing strongly at a wooden house made of sticks. The wooden house is breaking apart and collapsing. Two terrified little pigs are running fast towards a sturdy red brick house nearby. Pure cinematic animation style, vibrant character design, clean scenery, strict no text, no words, no fonts, no layout panels, full single scene view, no text overlapping."
+                "story_text_en": "The clever wolf followed them to the middle brother's wooden house. He took an even deeper breath and blew with all his might, causing the stick house to collapse into pieces. Deeply panicked, both little pigs scrambled on all fours and ran towards the youngest brother's brick house without looking back."
             },
             {
                 "page_number": 4,
                 "story_text_th": "หมาป่าวิ่งตามมาถึงบ้านอิฐ มันพยายามสูดลมเป่าอีกครั้งและอีกครั้งจนหน้าดำหน้าแดง แต่บ้านอิฐก็ไม่ขยับเขยื้อนเลยแม้แต่น้อย เมื่อเห็นว่าเป่าไม่พัง หมาป่าจึงปีนขึ้นไปบนหลังคาและพยายามจะมุดลงมาทางปล่องไฟเพื่อจับลูกหมูกิน",
-                "story_text_en": "The wolf chased them to the brick house. He tried to blow it down again and again until his face turned red, but the brick house didn't budge even a bit. Seeing that he couldn't blow it down, the wolf climbed onto the roof and tried to scramble down the chimney to catch and eat the little pigs.",
-                "image_prompt": "The big bad wolf, looking tired and frustrated with red cheeks, trying to blow down a solid red brick house but failing. In the next moment, the wolf is climbing up the roof towards a brick chimney, while the house stands perfectly still. Pure cinematic animation style, vibrant character design, clean scenery, strict no text, no words, no fonts, no layout panels, full single scene view, no text overlapping."
+                "story_text_en": "The wolf chased them to the brick house. He tried to blow it down again and again until his face turned red, but the brick house didn't budge even a bit. Seeing that he couldn't blow it down, the wolf climbed onto the roof and tried to scramble down the chimney to catch and eat the little pigs."
             },
             {
                 "page_number": 5,
                 "story_text_th": "แต่น้องเล็กผู้ชาญฉลาดได้ตั้งหม้อต้มน้ำร้อนรอไว้ที่เตาผิงด้านล่างแล้ว! เมื่อหมาป่ารูดตัวลงมาจากปล่องไฟ ก้นของมันก็กระแทกเข้ากับน้ำร้อนลวกอย่างจัง หมาป่าร้องลั่นด้วยความเจ็บปวดแล้วกระโดดหนีเตลิดเปิดเปิงเข้าป่าไป และไม่กล้ากลับมาตอแยกับลูกหมูสามตัวอีกเลย",
-                "story_text_en": "But the clever youngest brother had already set a big pot of boiling water waiting at the fireplace below! As the wolf slid down the chimney, his bottom splashed straight into the scalding water. The wolf howled in pain, leapt out, and fled into the forest, never daring to bother the three little pigs again.",
-                "image_prompt": "Inside a cozy brick house, a big pot of boiling water sits on a fireplace. The wolf is shooting up out of the chimney into the sky, clutching his burnt tail with a funny painful expression. Three little pigs are cheering and hugging each other happily. Pure cinematic animation style, vibrant character design, clean scenery, strict no text, no words, no fonts, no layout panels, full single scene view, no text overlapping."
+                "story_text_en": "But the clever youngest brother had already set a big pot of boiling water waiting at the fireplace below! As the wolf slid down the chimney, his bottom splashed straight into the scalding water. The wolf howled in pain, leapt out, and fled into the forest, never daring to bother the three little pigs again."
             }
         ]
     };
@@ -157,14 +173,13 @@
         const pagesContainer = document.getElementById('storybook-pages');
         pagesContainer.innerHTML = ''; 
 
-        // 1. จัดการส่วนของหน้าปก (และเขียนฟังก์ชันตรวจสอบปิด Prompt อัตโนมัติในตัว)
         if (data.cover) {
             const coverCard = document.createElement('div');
             coverCard.className = 'page-card cover-card';
             
-            const currentCoverUrl = data.cover.image_url || "cover.png";
-            // ใช้ฟังก์ชัน checkImageExist เพื่อซ่อนกล่อง Prompt เมื่อรูปหน้าปกโหลดติดจริงบนเว็บ
-            const imgHTML = `<img src="${currentCoverUrl}" class="story-img" id="cover-image-tag" onload="document.getElementById('cover-pbox').style.display='none';" onerror="this.style.display='none';">`;
+            // [แก้ไข] เปลี่ยนจากสตริงตายตัว ให้ดึงค่าจาก data.cover.image_url โดยตรง
+            const currentCoverUrl = data.cover.image_url;
+            const imgHTML = `<img src="${currentCoverUrl}" class="story-img" onerror="this.style.display='none';">`;
 
             coverCard.innerHTML = `
                 <div class="page-number">
@@ -172,7 +187,7 @@
                     <span style="color: #7f8c8d; font-size: 13px; font-weight: bold;">© Xero Studio</span>
                 </div>
                 ${imgHTML}
-                <div class="prompt-box" id="cover-pbox" style="border-left-color: #3498db; background-color: #f0f7fc;">
+                <div class="prompt-box" style="border-left-color: #3498db; background-color: #f0f7fc;">
                     <strong style="color: #2980b9;">🎨 คัดลอก Prompt สำหรับสร้างภาพหน้าปกแบบสองภาษาไปสั่งวาดรูป:</strong>
                     <div class="prompt-text">${data.cover.cover_prompt}</div>
                 </div>
@@ -180,15 +195,13 @@
             pagesContainer.appendChild(coverCard);
         } 
         
-        // 2. จัดการส่วนของเนื้อเรื่อง
         if (data.pages && Array.isArray(data.pages)) {
             data.pages.forEach((page) => {
                 const card = document.createElement('div');
                 card.className = 'page-card';
                 
                 const currentImgUrl = `p${page.page_number}.png`;
-                // ย้ายตัวสั่งซ่อนการแสดงผลมาจับที่กล่อง 'onload' บนแท็กรูปภาพโดยตรง เพื่อหลบเลี่ยงปัญหาความปลอดภัยของเบราว์เซอร์
-                const imgHTML = `<img src="${currentImgUrl}" class="story-img" onload="document.getElementById('pbox-${page.page_number}').style.display='none';" onerror="this.style.display='none';">`;
+                const imgHTML = `<img src="${currentImgUrl}" class="story-img" onerror="this.style.display='none';">`;
 
                 card.innerHTML = `
                     <div class="page-number">
@@ -198,14 +211,39 @@
                     ${imgHTML}
                     <p class="story-text"><b>TH:</b> ${page.story_text_th}</p>
                     <p class="story-text" style="color: #57606f; font-style: italic;"><b>EN:</b> ${page.story_text_en}</p>
-                    <div class="prompt-box" id="pbox-${page.page_number}">
-                        <strong>🎨 คัดลอก Prompt นี้ไปสร้างภาพประกอบหน้าที่ ${page.page_number}:</strong>
-                        <div class="prompt-text">${page.image_prompt}</div>
-                    </div>
                 `;
                 pagesContainer.appendChild(card);
             });
         }
+
+        // เปิดใช้งานเอฟเฟกต์ 3D หลังเรนเดอร์ UI
+        init3DEffect();
+    }
+
+    function init3DEffect() {
+        const cards = document.querySelectorAll('.page-card');
+        
+        cards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const cardRect = card.getBoundingClientRect();
+                const cardWidth = cardRect.width;
+                const cardHeight = cardRect.height;
+                const centerX = cardRect.left + cardWidth / 2;
+                const centerY = cardRect.top + cardHeight / 2;
+                const mouseX = e.clientX - centerX;
+                const mouseY = e.clientY - centerY;
+                
+                const maxRotation = 10; 
+                const rotateX = (-mouseY / (cardHeight / 2)) * maxRotation;
+                const rotateY = (mouseX / (cardWidth / 2)) * maxRotation;
+                
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+            });
+        });
     }
 
     function speakText(text) {
@@ -219,7 +257,6 @@
         return str.replace(/'/g, "\\'").replace(/"/g, '\\"');
     }
 
-    // เรียกทำงานระบบแสดงผล
     renderStory(customStoryData);
 </script>
 
